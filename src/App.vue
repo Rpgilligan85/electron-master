@@ -1,7 +1,7 @@
 <template>
 	<v-app v-if="userData">
 		<AppHeader />
-		<AppHome />
+		<router-view></router-view>
 	</v-app>
 </template>
 
@@ -19,9 +19,11 @@ export default {
 	computed: mapState({
 		userData: state => state.userData.userData
 	}),
-	methods: mapActions('userData', [
-		'loadUserData'
-	]),
+	methods: {
+		...mapActions({
+			loadUserData: 'userData/loadUserData'
+		})	
+	},
 	created() {
 		this.loadUserData()
 	}

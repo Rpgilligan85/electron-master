@@ -4,6 +4,7 @@ const fs = require('fs')
 
 const state = {
 	userData: [],
+	config: null,
 }
 
 const getters = {}
@@ -17,6 +18,9 @@ const mutations = {
 	},
 	REMOVE_PROJECT(state,index) {
 		state.userData.splice(index,1)
+	},
+	SET_CONFIG(state,obj) {
+		state.config = obj
 	}
 }
 
@@ -36,6 +40,16 @@ const actions = {
 		const userPath = (electron.app || electron.remote.app).getPath('userData')
 		const configPath = (userPath + '/userData.json');
 		fs.writeFileSync(configPath, JSON.stringify(state.userData));
+		
+		commit('projects/SET_UPDATE', true, {root: true})
+	},
+	loadConfig({commit, state}, index) {
+		console.log('state', state.userData[index])
+		const userPath = (electron.app || electron.remote.app).getPath('userData')
+		const templatePath = state.userData[index].template ? `${userPath}/templates/${state.userData[index].template}` : `${userPath}/templates/default.js`
+		console.log(templatePath)
+		const config = fs.readFileSync(templatePath)
+		fs.writeFileSync('./public/preview/config.js', config);
 	}
 }
 

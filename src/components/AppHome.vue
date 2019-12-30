@@ -5,14 +5,17 @@
 			<v-row>
 				<v-col cols="4" v-for="(item,index) in userData" :key="index">
 					<v-card>
-						<v-container>
-							<v-row>
-								<v-card-title>{{ item.projectName }}</v-card-title>
-								<v-spacer></v-spacer>
-								<v-btn @click="removeProject(index)" class="mr-2" x-small fab depressed color="red darken-4">
-									<v-icon color="white">mdi-close</v-icon></v-btn>
-							</v-row>
-						</v-container>
+						<v-img height="200px" :src="getImage(item)" ></v-img>
+						<v-card-title>{{ item.projectName }}</v-card-title>
+						<v-card-actions class="mt-5">
+							<v-spacer></v-spacer>
+							<v-btn :to="`/preview/${index}`" dark color="light-blue darken-4">Preview</v-btn>
+							<v-btn dark @click="removeProject(index)" color="red">
+								Remove
+							</v-btn>
+						</v-card-actions>
+						
+
 					</v-card>
 				</v-col>
 			</v-row>
@@ -40,7 +43,10 @@ export default {
 	methods: {
 		...mapActions({
 			removeProject: 'projects/removeProject'
-		})
+		}),
+		getImage(item) {
+			return item.image ? item.image : '/images/defaultImage.png'
+		}
 	}
 };
 </script>
