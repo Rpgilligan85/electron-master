@@ -1,0 +1,11 @@
+{
+	"details": { "title": "My Titlesad asd asd", "summary": "My Summaryasd as das d" },
+	"data": {
+		"test": {
+			"id": "test",
+			"dataInput": "csv",
+			"options": { "dataOutput": "geojson", "url": "data.csv", "lat": "lat", "lng": "lng" },
+			"style": { "prop": "Participants", "subProp": "Product", "styleObj": null }
+		}
+	}
+}

@@ -1,0 +1,1 @@
+{"data":{"sales":{"id":"sales","dataInput":"csv","options":{"dataOutput":"geojson","url":"SalesJan2009.csv","lat":"Latitude","lng":"Longitude\r"},"style":{"prop":"Payment_Type","subProp":"Product","styleObj":null}}},"details":{"title":"this is a test title","summary":"This is a test summary"}}
