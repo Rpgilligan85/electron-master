@@ -3,6 +3,7 @@ import Vuex from "vuex";
 import userData from "./modules/userData";
 import projects from "./modules/projects";
 import dialog from "./modules/dialog";
+import masterConfig from "./modules/masterConfig";
 
 Vue.use(Vuex);
 
@@ -10,7 +11,8 @@ export default new Vuex.Store({
 	modules: {
 		userData,
 		projects,
-		dialog
+		dialog,
+		masterConfig
 	},
 	state: {
 		selectedTemplate: null

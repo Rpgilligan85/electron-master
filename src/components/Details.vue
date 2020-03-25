@@ -2,10 +2,18 @@
 	<div>
 		<v-row>
 			<v-col>
-				<v-text-field v-model="title" label="Title" />
+				<v-text-field
+					@input="update('details.title', $event)"
+					v-model="title"
+					label="Title"
+				/>
 			</v-col>
 			<v-col>
-				<v-text-field v-model="summary" label="summary" />
+				<v-text-field
+					@input="update('details.summary', $event)"
+					v-model="summary"
+					label="summary"
+				/>
 			</v-col>
 		</v-row>
 		<v-row justify="center">
@@ -25,21 +33,25 @@
 		computed: {
 			...mapState({
 				template: state => state.userData.template,
-				templateLoaded: state => state.userData.templateLoaded
+				templateLoaded: state => state.userData.templateLoaded,
+				masterConfig: state => state.masterConfig.masterConfig
 			})
 		},
 		methods: {
 			...mapMutations({
-				SET_TEMPLATE: "userData/SET_TEMPLATE"
+				SET_MASTER_CONFIG: "masterConfig/SET_MASTER_CONFIG"
 			}),
+			update(key, val) {
+				this.$emit("update-conifg", key, val);
+			},
 			saveDetails() {
-				this.SET_TEMPLATE({
+				/* this.SET_TEMPLATE({
 					header: "details",
 					data: {
 						title: this.title,
 						summary: this.summary
 					}
-				});
+				}); */
 				console.log("check", this.template);
 			}
 		},
@@ -52,6 +64,13 @@
 					}
 				},
 				immediate: true
+			},
+			masterConfig: {
+				handler(val) {
+					console.log("val", val);
+				},
+				immediate: true,
+				deep: true
 			}
 		}
 	};

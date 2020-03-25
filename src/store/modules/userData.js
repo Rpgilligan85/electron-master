@@ -5,7 +5,6 @@ const fs = require("fs");
 const state = {
 	userData: [],
 	config: null,
-	template: {},
 	templateLoaded: false
 };
 
@@ -70,14 +69,6 @@ const actions = {
 		const templatePath = `${userPath}/templates/${template}.js`;
 		const config = fs.readFileSync(templatePath);
 		fs.writeFileSync("./public/preview/config.js", config);
-	},
-	saveTemplate({ commit, state }, obj) {
-		console.log("obj", obj);
-		const userPath = (electron.app || electron.remote.app).getPath("userData");
-		const configPath = `${userPath}/configs/${obj.fileName}.json`;
-		console.log("config", configPath);
-		fs.writeFileSync(configPath, JSON.stringify(obj.data));
-		fs.writeFileSync(`./public/configs/${obj.fileName}.json`, JSON.stringify(obj.data));
 	}
 };
 

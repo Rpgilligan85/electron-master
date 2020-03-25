@@ -17,6 +17,7 @@
 				<v-select
 					v-if="csvData"
 					v-model="lat"
+					@input="update(`data[${id}].options.lat`, $event)"
 					:items="Object.keys(csvData[0])"
 					label="Latitude"
 				/>
@@ -25,6 +26,7 @@
 				<v-select
 					v-if="csvData"
 					v-model="long"
+					@input="update(`data[${id}].options.lng`, $event)"
 					:items="Object.keys(csvData[0])"
 					label="Longitude"
 				/>
@@ -37,6 +39,7 @@
 				<v-select
 					v-if="csvData"
 					v-model="prop"
+					@input="update(`data[${id}].style.prop`, $event)"
 					:items="Object.keys(csvData[0])"
 					label="Group Property"
 				/>
@@ -45,6 +48,7 @@
 				<v-select
 					v-if="csvData"
 					v-model="supProp"
+					@input="update(`data[${id}].style.subProp`, $event)"
 					:items="Object.keys(csvData[0])"
 					label="Sup  Group Property (optional)"
 				/>
@@ -100,13 +104,13 @@
 			})
 		},
 		methods: {
-			...mapActions({
-				saveTemplate: "userData/saveTemplate"
-			}),
 			...mapMutations({
 				SET_TEMPLATE: "userData/SET_TEMPLATE",
 				SET_DIALOG_OBJ: "dialog/SET_DIALOG_OBJ"
 			}),
+			update(key, val) {
+				this.$emit("update-conifg", key, val);
+			},
 			openIcons() {
 				this.SET_DIALOG_OBJ({
 					component: "Dialog",
@@ -135,10 +139,10 @@
 					}
 				});
 				console.log("template", this.template);
-				this.saveTemplate({
+				/* this.saveTemplate({
 					fileName: this.id,
 					data: this.template
-				});
+				}); */
 			},
 			loadCsv() {
 				const reader = new FileReader();

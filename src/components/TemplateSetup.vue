@@ -21,7 +21,10 @@
 						item
 					}}</v-expansion-panel-header>
 					<v-expansion-panel-content>
-						<component :is="templates[template].components[i]" />
+						<component
+							:is="templates[template].components[i]"
+							@update-conifg="getDetails"
+						/>
 					</v-expansion-panel-content>
 				</v-expansion-panel>
 			</v-expansion-panels>
@@ -32,6 +35,7 @@
 <script>
 	import Details from "./Details";
 	import Data from "./Data";
+	import _ from "lodash";
 
 	import { mapState, mapGetters, mapMutations } from "vuex";
 	export default {
@@ -43,6 +47,7 @@
 		},
 		data: () => ({
 			file: null,
+			masterConfig: {},
 			templates: {
 				ComplexViewer: {
 					panels: ["Details", "Data"],
@@ -53,7 +58,8 @@
 		methods: {
 			...mapMutations({
 				SET_TEMPLATE_OBJ: "userData/SET_TEMPLATE_OBJ",
-				SET_TEMPLATE_LOADED: "userData/SET_TEMPLATE_LOADED"
+				SET_TEMPLATE_LOADED: "userData/SET_TEMPLATE_LOADED",
+				SET_MASTER_CONFIG: "masterConfig/SET_MASTER_CONFIG"
 			}),
 			setData() {
 				console.log("files", this.file);
@@ -63,6 +69,10 @@
 					this.SET_TEMPLATE_LOADED(true);
 				};
 				reader.readAsText(this.file);
+			},
+			getDetails(key, val) {
+				const config = _.set(this.masterConfig, key, val);
+				console.log("config", config);
 			}
 		},
 		mounted() {
