@@ -23,7 +23,9 @@
 					<v-expansion-panel-content>
 						<component
 							:is="templates[template].components[i]"
+							:selectedTemplate="template"
 							@update-conifg="getDetails"
+							@save-config="saveConfigFile"
 						/>
 					</v-expansion-panel-content>
 				</v-expansion-panel>
@@ -37,7 +39,7 @@
 	import Data from "./Data";
 	import _ from "lodash";
 
-	import { mapState, mapGetters, mapMutations } from "vuex";
+	import { mapState, mapGetters, mapMutations, mapActions } from "vuex";
 	export default {
 		name: "TemplateSetup",
 		props: ["template"],
@@ -48,8 +50,13 @@
 		data: () => ({
 			file: null,
 			masterConfig: {},
+			layout: ["Home", "SimpleViewer"],
 			templates: {
 				ComplexViewer: {
+					panels: ["Details", "Data"],
+					components: ["Details", "Data"]
+				},
+				SimpleViewer: {
 					panels: ["Details", "Data"],
 					components: ["Details", "Data"]
 				}
@@ -61,18 +68,30 @@
 				SET_TEMPLATE_LOADED: "userData/SET_TEMPLATE_LOADED",
 				SET_MASTER_CONFIG: "masterConfig/SET_MASTER_CONFIG"
 			}),
+			...mapActions({
+				saveConfig: "masterConfig/saveConfig"
+			}),
 			setData() {
 				console.log("files", this.file);
 				const reader = new FileReader();
 				reader.onload = e => {
 					this.SET_TEMPLATE_OBJ(JSON.parse(e.target.result));
 					this.SET_TEMPLATE_LOADED(true);
+					this.masterConfig = JSON.parse(e.target.result);
 				};
 				reader.readAsText(this.file);
 			},
 			getDetails(key, val) {
 				const config = _.set(this.masterConfig, key, val);
 				console.log("config", config);
+			},
+			saveConfigFile() {
+				console.log("hi", this.masterConfig);
+				this.saveConfig({
+					fileName: "master",
+					data: this.masterConfig
+				});
+				this.SET_MASTER_CONFIG(this.masterConfig);
 			}
 		},
 		mounted() {

@@ -44,7 +44,7 @@
 					label="Group Property"
 				/>
 			</v-col>
-			<v-col>
+			<!-- <v-col>
 				<v-select
 					v-if="csvData"
 					v-model="supProp"
@@ -52,29 +52,62 @@
 					:items="Object.keys(csvData[0])"
 					label="Sup  Group Property (optional)"
 				/>
-			</v-col>
+			</v-col> -->
 		</v-row>
 		<template v-if="icons">
-			<v-row v-for="(item, key) in icons" :key="key">
+			<v-row v-for="(item, index) in icons" :key="index">
 				<v-col cols="2">
 					{{ item.value }}
 				</v-col>
 				<v-col cols="1">
-					<v-text-field v-model="icons[item.value].icon" label="icon" />
+					<v-text-field
+						@input="updateIcons(item.value, $event)"
+						v-model="item.icon"
+						label="icon"
+					/>
 				</v-col>
 				<v-col cols="1">
-					<v-text-field v-model="icons[item.value].color" label="color" />
+					<v-text-field
+						@input="updateIcons(item.value, $event)"
+						v-model="item.color"
+						label="color"
+					/>
 				</v-col>
 				<v-col cols="1">
-					<v-text-field v-model="icons[item.value].size" label="size" />
+					<v-text-field
+						@input="updateIcons(item.value, $event)"
+						v-model="item.size"
+						label="size"
+					/>
 				</v-col>
-				<v-col v-if="icons[item.value].icon">
-					<v-icon>{{ icons[item.value].icon }}</v-icon>
+				<v-col v-if="item.icon">
+					<v-icon :size="item.size" :color="item.color">{{ item.icon }}</v-icon>
 				</v-col>
 			</v-row>
 		</template>
+		<v-divider />
+		<v-row class="mt-5">
+			<h3>Map Options</h3>
+			<v-col>
+				<v-select
+					@input="update(`${selectedTemplate}.data[${id}.markerOptions`, $event)"
+					v-model="markerOptions"
+					:items="['markerOptions']"
+					label="Marker Options"
+				/>
+			</v-col>
+			<v-col>
+				<v-select
+					@input="update(`${selectedTemplate}.data[${id}.clusterOptions`, $event)"
+					v-model="clusterOptions"
+					:items="['clusterOptions']"
+					label="Cluster Options"
+				/>
+			</v-col>
+		</v-row>
 		<v-row justify="center">
 			<v-btn @click="saveData()" color="green">Save</v-btn>
+			<v-btn class="ml-5" :to="`/previewTemplate/master`" color="blue">Preview</v-btn>
 		</v-row>
 	</div>
 </template>
@@ -85,11 +118,13 @@
 	const d3 = require("d3");
 	export default {
 		name: "Data",
-
+		props: ["selectedTemplate"],
 		data: () => ({
 			uploadData: null,
 			id: null,
 			csvData: null,
+			clusterOptions: "clusterOptions",
+			markerOptions: "markerOptions",
 			url: null,
 			lat: null,
 			long: null,
@@ -108,8 +143,15 @@
 				SET_TEMPLATE: "userData/SET_TEMPLATE",
 				SET_DIALOG_OBJ: "dialog/SET_DIALOG_OBJ"
 			}),
+			...mapActions({
+				saveConfig: "masterConfig/saveConfig"
+			}),
 			update(key, val) {
+				// this.addIDs()
 				this.$emit("update-conifg", key, val);
+			},
+			updateIcons() {
+				this.$emit("update-conifg", `data[${this.id}.style.styleObj`, this.icons);
 			},
 			openIcons() {
 				this.SET_DIALOG_OBJ({
@@ -117,32 +159,40 @@
 					visible: true
 				});
 			},
+			setDefaults() {
+				this.$emit("update-conifg", `data[${this.id}].id`, this.id);
+				this.$emit("update-conifg", `data[${this.id}].dataInput`, "csv");
+				this.$emit("update-conifg", `data[${this.id}].options.dataOutput`, "geojson");
+				this.$emit("update-conifg", `data[${this.id}].options.url`, this.url);
+				this.$emit("update-conifg", `layout`, ["Home", this.selectedTemplate]);
+				this.$emit("update-conifg", `defaultView`, this.selectedTemplate);
+				this.$emit(
+					"update-conifg",
+					`${this.selectedTemplate}.data[${this.id}].id`,
+					this.id
+				);
+				this.$emit(
+					"update-conifg",
+					`${this.selectedTemplate}.data[${this.id}].clusterOptions`,
+					this.clusterOptions
+				);
+				this.$emit(
+					"update-conifg",
+					`${this.selectedTemplate}.data[${this.id}].markerOptions`,
+					this.markerOptions
+				);
+			},
 			saveData() {
-				this.SET_TEMPLATE({
-					header: "data",
-					data: {
-						[this.id]: {
-							id: this.id,
-							dataInput: "csv",
-							options: {
-								dataOutput: "geojson",
-								url: this.url,
-								lat: this.lat,
-								lng: this.long
-							},
-							style: {
-								prop: this.prop,
-								subProp: this.supProp,
-								styleObj: null
-							}
-						}
-					}
+				this.setDefaults();
+
+				this.$emit("save-config");
+			},
+			preview() {
+				this.saveData();
+				this.saveConfig({
+					fileName: "master",
+					data: this.masterConfig
 				});
-				console.log("template", this.template);
-				/* this.saveTemplate({
-					fileName: this.id,
-					data: this.template
-				}); */
 			},
 			loadCsv() {
 				const reader = new FileReader();
@@ -163,7 +213,7 @@
 					}
 					let final = JSON.stringify(result);
 					this.csvData = JSON.parse(final);
-					console.log("CSV Data", this.csvData);
+					console.log("CSV ata", this.csvData);
 				};
 				reader.readAsText(file);
 			}
@@ -179,23 +229,26 @@
 									csv,
 									x => x[this.template.data[item].style.prop]
 								);
-								this.icons = {};
+								/* this.icons = [];
 								Object.keys(icons).forEach(item => {
-									this.icons[item] = {
+									this.icons.push({
 										value: item,
 										color: null,
 										icon: null,
 										size: null
-									};
-								});
+									});
+								}); */
 								this.csvData = csv;
 							});
+							console.log("template", this.template.data[item].style.styleObj);
 							this.id = this.template.data[item].id;
 							this.url = this.template.data[item].options.url;
 							this.lat = this.template.data[item].options.lat;
 							this.long = this.template.data[item].options.lng;
 							this.prop = this.template.data[item].style.prop;
 							this.supProp = this.template.data[item].style.subProp;
+							this.icons = this.template.data[item].style.styleObj;
+							console.log("icons", this.icons);
 						});
 					}
 				},
@@ -203,27 +256,35 @@
 			},
 			prop: {
 				handler(val) {
-					// if (!this.templateLoaded) {
+					if (!this.templateLoaded) {
+						let icons = _.groupBy(this.csvData, x => x[val]);
+						console.log("icons", icons);
+						this.icons = [];
+						Object.keys(icons).forEach(item => {
+							this.icons.push({
+								value: item,
+								color: null,
+								icon: null,
+								size: null
+							});
+						});
+					}
+				},
+				immediate: true
+			},
+			subProp: {
+				handler(val) {
 					let icons = _.groupBy(this.csvData, x => x[val]);
-					this.icons = {};
+					this.icons = [];
 					Object.keys(icons).forEach(item => {
-						this.icons[item] = {
+						this.icons.push({
 							value: item,
 							color: null,
 							icon: null,
 							size: null
-						};
+						});
 					});
-					// }
-				},
-				immediate: true
-			},
-			icons: {
-				handler(val) {
-					console.log("icons", val);
-				},
-				deep: true,
-				immediate: true
+				}
 			}
 		}
 	};

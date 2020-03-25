@@ -15,10 +15,17 @@
 					label="summary"
 				/>
 			</v-col>
+			<v-col>
+				<v-text-field
+					@input="update('details.backgroundImage', $event)"
+					v-model="backgroundImage"
+					label="Background Image"
+				/>
+			</v-col>
 		</v-row>
-		<v-row justify="center">
+		<!-- <v-row justify="center">
 			<v-btn color="green" @click="saveDetails()">Save</v-btn>
-		</v-row>
+		</v-row> -->
 	</div>
 </template>
 
@@ -28,20 +35,18 @@
 		name: "Details",
 		data: () => ({
 			title: null,
-			summary: null
+			summary: null,
+			backgroundImage: "world.jpg"
 		}),
 		computed: {
 			...mapState({
 				template: state => state.userData.template,
-				templateLoaded: state => state.userData.templateLoaded,
-				masterConfig: state => state.masterConfig.masterConfig
+				templateLoaded: state => state.userData.templateLoaded
 			})
 		},
 		methods: {
-			...mapMutations({
-				SET_MASTER_CONFIG: "masterConfig/SET_MASTER_CONFIG"
-			}),
 			update(key, val) {
+				this.$emit("update-conifg", "details.backgroundImage", this.backgroundImage);
 				this.$emit("update-conifg", key, val);
 			},
 			saveDetails() {
@@ -64,13 +69,6 @@
 					}
 				},
 				immediate: true
-			},
-			masterConfig: {
-				handler(val) {
-					console.log("val", val);
-				},
-				immediate: true,
-				deep: true
 			}
 		}
 	};

@@ -66,7 +66,10 @@ const actions = {
 	},
 	loadTemplate({ commit, state }, template) {
 		const userPath = (electron.app || electron.remote.app).getPath("userData");
-		const templatePath = `${userPath}/templates/${template}.js`;
+		let templatePath;
+		template === "master"
+			? (templatePath = `${userPath}/configs/${template}.js`)
+			: (templatePath = `${userPath}/templates/${template}.js`);
 		const config = fs.readFileSync(templatePath);
 		fs.writeFileSync("./public/preview/config.js", config);
 	}
